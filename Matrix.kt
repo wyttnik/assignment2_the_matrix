@@ -1,6 +1,8 @@
 @file:Suppress("UNUSED_PARAMETER")
 package mmcs.assignment2
 
+import java.lang.IllegalArgumentException
+
 /**
  * Ячейка матрицы: row = ряд, column = колонка
  */
@@ -38,32 +40,53 @@ interface Matrix<E> {
  * height = высота, width = ширина, e = чем заполнить элементы.
  * Бросить исключение IllegalArgumentException, если height или width <= 0.
  */
-fun <E> createMatrix(height: Int, width: Int, e: E): Matrix<E> = TODO()
+fun <E> createMatrix(height: Int, width: Int, e: E): Matrix<E> {
+    if (height <= 0 || width <= 0) throw IllegalArgumentException()
+    return MatrixImpl(height,width, e)
+}
 
 /**
  * Реализация интерфейса "матрица"
  */
 
 @Suppress("EqualsOrHashCode")
-class MatrixImpl<E> : Matrix<E> {
+class MatrixImpl<E>(override val height: Int,
+                    override val width: Int,
+                    e:E) : Matrix<E> {
 
-    override val height: Int = TODO()
+    private val elements = MutableList(height*width) {e}
 
-    override val width: Int = TODO()
+    override fun get(row: Int, column: Int): E = elements[width*row+column]
 
-    override fun get(row: Int, column: Int): E = TODO()
-
-    override fun get(cell: Cell): E = TODO()
+    override fun get(cell: Cell): E = get(cell.row,cell.column)
 
     override fun set(row: Int, column: Int, value: E) {
-        TODO()
+        elements[width*row+column] = value
     }
 
     override fun set(cell: Cell, value: E) {
-        TODO()
+        set(cell.row,cell.column, value)
     }
 
-    override fun equals(other: Any?) = TODO()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null) return false
+        if (other !is Matrix<*>) return false
+        if (height != other.height || width != other.width) return false
+        for(i in 0 until height)
+            for(j in 0 until width)
+                if (this[i,j] != other[i, j])
+                    return false
+        return true
+    }
 
-    override fun toString(): String = TODO()
+    override fun toString(): String {
+        var printMatrix = ""
+        for(i in 0 until height) {
+            for (j in 0 until width)
+                printMatrix += "${this[i, j]}\t"
+            printMatrix += '\n'
+        }
+        return printMatrix
+    }
 }
